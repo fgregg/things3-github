@@ -24,6 +24,7 @@ jobs:
     - name: Updating things
       env:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        HISTORY_KEY: ${{ secrets.HISTORY_KEY }}
       run: python issues.py
     - name: Commit changes
       uses: EndBug/add-and-commit@v7
