@@ -1,0 +1,30 @@
+name: Issues to Github
+
+on:
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '15 4 * * *'    
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+    - name: Updating things
+      run: python issues.py
+    - name: Commit changes
+      uses: EndBug/add-and-commit@v7
+      with:
+        message: 'update last update'
+        add: 'last_updated.txt'    
