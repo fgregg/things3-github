@@ -1,0 +1,19 @@
+query MyIssues($gh_query: String!) {
+  search(first: 100, type: ISSUE, query: $gh_query) {
+    issueCount
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      node {
+        ... on Issue {
+          createdAt
+          title
+          url
+          databaseId
+        }
+      }
+    }
+  }
+}
