@@ -1,9 +1,8 @@
 import time
 import uuid
+import os
 
 import requests
-
-import secrets
 
 def createItem(issue):
     key = str(uuid.uuid4()).upper()
@@ -40,42 +39,44 @@ def createItem(issue):
             }
     return item
 
-try:
-    with open('last_updated.txt') as f:
-        last_updated = f.read()
-except FileNotFoundError:
-    last_updated = '2021-01-01'
+if __name__ == '__main__':
 
-with open('query.graphql') as f:
-    query = {
-        'query': f.read(),
-        'variables': {'gh_query': "org:labordata repo:datamade/cannabis-idfp state:open created:>" + last_updated}}
+    try:
+        with open('last_updated.txt') as f:
+            last_updated = f.read()
+    except FileNotFoundError:
+        last_updated = '2021-01-01'
 
-s = requests.Session()
-s.headers.update({"Authorization": 'bearer ' + secrets.GH_TOKEN})
+    with open('query.graphql') as f:
+        query = {
+            'query': f.read(),
+            'variables': {'gh_query': "org:labordata repo:datamade/cannabis-idfp state:open created:>" + last_updated}}
 
-response = s.post('https://api.github.com/graphql', json=query)
+    s = requests.Session()
+    s.headers.update({"Authorization": 'bearer ' + os.environ['GH_TOKEN']})
 
-issues = [node['node'] for node in response.json()['data']['search']['edges']]
-issues.sort(key = lambda x: x['createdAt'])
+    response = s.post('https://api.github.com/graphql', json=query)
 
-THINGS_BASE = 'https://cloud.culturedcode.com/version/1'
+    issues = [node['node'] for node in response.json()['data']['search']['edges']]
+    issues.sort(key = lambda x: x['createdAt'])
 
-for issue in issues:
-    last_updated = issue['createdAt']
-    item = createItem(issue)
+    THINGS_BASE = 'https://cloud.culturedcode.com/version/1'
 
-    response = s.get(THINGS_BASE + '/history/' + secrets.HISTORY_KEY)
-    payload = {
-        'current-item-index': response.json()['latest-server-index'],
-        'items': [item],
-        'schema': 1
-        }
-    response = s.post('https://cloud.culturedcode.com/version/1/history/' + secrets.HISTORY_KEY + '/items',
-                      json=payload)
+    for issue in issues:
+        last_updated = issue['createdAt']
+        item = createItem(issue)
 
-    with open('last_updated.txt', 'w') as f:
-        f.write(last_updated)
+        response = s.get(THINGS_BASE + '/history/' + os.environ['HISTORY_KEY'])
+        payload = {
+            'current-item-index': response.json()['latest-server-index'],
+            'items': [item],
+            'schema': 1
+            }
+        response = s.post('https://cloud.culturedcode.com/version/1/history/' + os.environ['HISTORY_KEY'] + '/items',
+                          json=payload)
+
+        with open('last_updated.txt', 'w') as f:
+            f.write(last_updated)
 
 
     
