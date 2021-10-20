@@ -49,7 +49,7 @@ except FileNotFoundError:
 with open('query.graphql') as f:
     query = {
         'query': f.read(),
-        'variables': {'gh_query': "org:labordata repo:datamade/cannabis-idfp state:open created:>=" + last_updated}}
+        'variables': {'gh_query': "org:labordata repo:datamade/cannabis-idfp state:open created:>" + last_updated}}
 
 s = requests.Session()
 s.headers.update({"Authorization": 'bearer ' + secrets.GH_TOKEN})
@@ -64,21 +64,15 @@ THINGS_BASE = 'https://cloud.culturedcode.com/version/1'
 for issue in issues:
     last_updated = issue['createdAt']
     item = createItem(issue)
+
     response = s.get(THINGS_BASE + '/history/' + secrets.HISTORY_KEY)
-
-
-    
-    #print(item)
     payload = {
         'current-item-index': response.json()['latest-server-index'],
         'items': [item],
         'schema': 1
         }
-    #response = s.post('https://cloud.culturedcode.com/version/1/history/' + secrets.HISTORY_KEY + '/items',
-    #                  json=payload)
-    #print(response.json())
-    import json
-    print(json.dumps(payload))
+    response = s.post('https://cloud.culturedcode.com/version/1/history/' + secrets.HISTORY_KEY + '/items',
+                      json=payload)
 
     with open('last_updated.txt', 'w') as f:
         f.write(last_updated)
