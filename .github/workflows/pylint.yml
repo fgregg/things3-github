@@ -23,7 +23,7 @@ jobs:
       run: pip install -r requirements.txt
     - name: Updating things
       env:
-        - GH_TOKEN: {{secrets.GH_TOKEN}}
+        - GH_TOKEN: ${{secrets.GH_TOKEN}}
       run: python issues.py
     - name: Commit changes
       uses: EndBug/add-and-commit@v7
