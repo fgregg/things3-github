@@ -40,6 +40,7 @@ def createItem(issue):
     return item
 
 if __name__ == '__main__':
+    THINGS_BASE = 'https://cloud.culturedcode.com/version/1'
 
     try:
         with open('seen.txt') as f:
@@ -71,8 +72,6 @@ if __name__ == '__main__':
 
     issues += [node['node'] for node in response.json()['data']['search']['edges']]
 
-    THINGS_BASE = 'https://cloud.culturedcode.com/version/1'
-
     for issue in issues:
         database_id = str(issue['databaseId'])
         if database_id in seen_issues:
@@ -86,7 +85,7 @@ if __name__ == '__main__':
             'items': [item],
             'schema': 1
             }
-        response = s.post('https://cloud.culturedcode.com/version/1/history/' + os.environ['HISTORY_KEY'] + '/items',
+        response = s.post(THINGS_BASE + '/history/' + os.environ['HISTORY_KEY'] + '/items',
                           json=payload)
 
         seen_issues.add(database_id)
