@@ -42,28 +42,42 @@ def createItem(issue):
 if __name__ == '__main__':
 
     try:
-        with open('last_updated.txt') as f:
-            last_updated = f.read()
+        with open('seen.txt') as f:
+            seen_issues = set(f.read().splitlines())
     except FileNotFoundError:
-        last_updated = '2021-01-01'
+        seen_issues = set()
 
     with open('query.graphql') as f:
-        query = {
-            'query': f.read(),
-            'variables': {'gh_query': "org:labordata repo:datamade/cannabis-idfp state:open created:>" + last_updated}}
+        query_string = f.read()
+
+    query = {
+        'query': query_string,
+        'variables': {'gh_query': "org:labordata repo:datamade/cannabis-idfp state:open"}}
 
     s = requests.Session()
-    s.headers.update({"Authorization": 'bearer ' + os.environ['GH_TOKEN']})
 
-    response = s.post('https://api.github.com/graphql', json=query)
+    response = s.post('https://api.github.com/graphql',
+                      json=query,
+                      headers={"Authorization": 'bearer ' + os.environ['GH_TOKEN']})
 
     issues = [node['node'] for node in response.json()['data']['search']['edges']]
-    issues.sort(key = lambda x: x['createdAt'])
+    query = {
+        'query': query_string,
+        'variables': {'gh_query': "assignee:fgregg state:open"}}
+    
+    response = s.post('https://api.github.com/graphql',
+                      json=query,
+                      headers={"Authorization": 'bearer ' + os.environ['GH_TOKEN']})
+
+    issues += [node['node'] for node in response.json()['data']['search']['edges']]
 
     THINGS_BASE = 'https://cloud.culturedcode.com/version/1'
 
     for issue in issues:
-        last_updated = issue['createdAt']
+        database_id = str(issue['databaseId'])
+        if database_id in seen_issues:
+            continue
+
         item = createItem(issue)
 
         response = s.get(THINGS_BASE + '/history/' + os.environ['HISTORY_KEY'])
@@ -75,8 +89,10 @@ if __name__ == '__main__':
         response = s.post('https://cloud.culturedcode.com/version/1/history/' + os.environ['HISTORY_KEY'] + '/items',
                           json=payload)
 
-        with open('last_updated.txt', 'w') as f:
-            f.write(last_updated)
+        seen_issues.add(database_id)
+        
+        with open('seen.txt', 'a') as f:
+            f.write(database_id + '\n')
 
 
     

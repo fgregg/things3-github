@@ -32,5 +32,5 @@ jobs:
     - name: Commit changes
       uses: EndBug/add-and-commit@v7
       with:
-        message: 'update last update'
-        add: 'last_updated.txt'    
+        message: 'seen issues'
+        add: 'seen.txt'    
