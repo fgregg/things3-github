@@ -64,7 +64,7 @@ if __name__ == '__main__':
     issues = [node['node'] for node in response.json()['data']['search']['edges']]
     query = {
         'query': query_string,
-        'variables': {'gh_query': "assignee:fgregg state:open review-requested:fgregg"}}
+        'variables': {'gh_query': "assignee:fgregg state:open"}}
     
     response = s.post('https://api.github.com/graphql',
                       json=query,
