@@ -72,6 +72,21 @@ if __name__ == '__main__':
 
     issues += [node['node'] for node in response.json()['data']['search']['edges']]
 
+    with open('pr.graphql') as f:
+        pr_query_string = f.read()
+
+    
+    query = {
+        'query': pr_query_string,
+        'variables': {'gh_query': "assignee:fgregg state:open"}}
+    
+    response = s.post('https://api.github.com/graphql',
+                      json=query,
+                      headers={"Authorization": 'bearer ' + os.environ['GH_TOKEN']})
+
+    issues += [node['node'] for node in response.json()['data']['search']['edges']]
+    
+
     for issue in issues:
         database_id = str(issue['databaseId'])
         if database_id in seen_issues:
