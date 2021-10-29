@@ -53,7 +53,7 @@ if __name__ == '__main__':
 
     query = {
         'query': query_string,
-        'variables': {'gh_query': "org:labordata repo:datamade/cannabis-idfp repo:fgregg/black-bestsellers state:open"}}
+        'variables': {'gh_query': "org:labordata repo:datamade/cannabis-idfp"}}
 
     s = requests.Session()
 
@@ -64,7 +64,7 @@ if __name__ == '__main__':
     issues = [node['node'] for node in response.json()['data']['search']['edges']]
     query = {
         'query': query_string,
-        'variables': {'gh_query': "assignee:fgregg state:open"}}
+        'variables': {'gh_query': "assignee:fgregg state:open review-requested:fgregg"}}
     
     response = s.post('https://api.github.com/graphql',
                       json=query,
