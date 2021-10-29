@@ -78,7 +78,7 @@ if __name__ == '__main__':
     
     query = {
         'query': pr_query_string,
-        'variables': {'gh_query': "assignee:fgregg state:open"}}
+        'variables': {'gh_query': "review-requested:fgregg state:open"}}
     
     response = s.post('https://api.github.com/graphql',
                       json=query,
