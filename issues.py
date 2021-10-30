@@ -53,7 +53,7 @@ if __name__ == '__main__':
 
     query = {
         'query': query_string,
-        'variables': {'gh_query': "org:labordata repo:datamade/cannabis-idfp state:open"}}
+        'variables': {'gh_query': "org:labordata repo:datamade/cannabis-idfp repo:vm-wylbur/adaptive-blocking-paper state:open"}}
 
     s = requests.Session()
 
