@@ -1,6 +1,7 @@
 import time
 import uuid
 import os
+import sys
 
 import requests
 
@@ -88,7 +89,12 @@ if __name__ == '__main__':
     
 
     for issue in issues:
-        database_id = str(issue['databaseId'])
+        try:
+            database_id = str(issue['databaseId'])
+        except KeyError:
+            print(issue, file=sys.stderr)
+            continue
+            
         if database_id in seen_issues:
             continue
 
