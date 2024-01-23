@@ -1,1 +1,2 @@
 requests
+https://codeload.github.com/disrupted/things-cloud-api/zip/refs/heads/main

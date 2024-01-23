@@ -1,48 +1,11 @@
-import time
-import uuid
 import os
 import sys
+import time
+import uuid
 
 import requests
-
-
-def createItem(issue):
-    key = str(uuid.uuid4()).upper()
-    now = int(time.time())
-    item = {
-        key: {
-            "t": 0,
-            "e": "Task2",
-            "p": {
-                "acrd": None,
-                "ar": [],
-                "cd": now,
-                "dd": None,
-                "dl": [],
-                "do": 0,
-                "icc": 0,
-                "icp": False,
-                "icsd": None,
-                "ix": 0,
-                "md": now,
-                "nt": '<note xml:space="preserve">' + issue["url"] + "</note>",
-                "pr": [],
-                "rr": None,
-                "rt": [],
-                "sp": None,
-                "sr": None,
-                "ss": 0,
-                "st": 0,
-                "tg": [],
-                "ti": 0,
-                "tp": 0,
-                "tr": False,
-                "tt": issue["title"],
-            },
-        }
-    }
-    return item
-
+from things_cloud import ThingsClient
+from things_cloud.models.todo import Note, TodoItem
 
 if __name__ == "__main__":
     THINGS_BASE = "https://cloud.culturedcode.com/version/1"
@@ -111,19 +74,19 @@ if __name__ == "__main__":
         if database_id in seen_issues:
             continue
 
-        item = createItem(issue)
-
         response = s.get(THINGS_BASE + "/history/" + os.environ["HISTORY_KEY"])
-        payload = {
-            "current-item-index": response.json()["latest-server-index"],
-            "items": [item],
-            "schema": 1,
-        }
-        response = s.post(
-            THINGS_BASE + "/history/" + os.environ["HISTORY_KEY"] + "/items",
-            json=payload,
+
+        things = ThingsClient(
+            os.environ["HISTORY_KEY"],
+            initial_offset=response.json()["latest-server-index"],
         )
-        response.raise_for_status()
+
+        note = Note()
+        note.ch = 1
+        note.v = issue["url"]
+        note.t = 1
+        todo = TodoItem(issue["title"], note=note)
+        things.create(todo)
 
         seen_issues.add(database_id)
 
